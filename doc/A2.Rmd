@@ -1,0 +1,123 @@
+---
+title: "Project4"
+output:
+  html_document:
+    df_print: paged
+  pdf_document: default
+---
+
+In this project, we are going to explore matrix factorization methods for recommender system. The goal is to match consumers with most appropriate products. Matrix factorization methods characterize both items and users by vectors of factors inferred from item rating patterns. High correspondence between item and user factors leads to a recommendation. 
+
+### Step 1 Load Data and Train-test Split
+```{r warning=FALSE, message=FALSE}
+library(MASS)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+data <- read.csv("../data/ml-latest-small/ratings.csv")
+set.seed(0)
+test_idx <- sample(1:nrow(data), round(nrow(data)/5, 0))
+train_idx <- setdiff(1:nrow(data), test_idx)
+data_train <- data[train_idx,]
+data_test <- data[test_idx,]
+```
+
+###Step 2 Matrix Factorization
+#### Step 2.1 Algorithm
+Here I perform probabilistic gradien descent to do matrix factorization.
+
+A2. [Gradient Descent with Probabilistic Assumptions](./paper/P3 probabilistic-matrix-factorization.pdf) Section 2
+
+```{r}
+U <- length(unique(data$userId))
+I <- length(unique(data$movieId))
+source("../lib/Matrix_Factorization_A2.R")
+```
+
+
+#### Step 2.2 Parameter Tuning
+Here you should tune parameters, such as the dimension of factor and the penalty parameter $\lambda$ by cross-validation.
+```{r}
+source("../lib/cross_validation_A2.R")
+f_l <- cbind(f = c(5, 10, 20, 5, 10, 20, 5, 10, 20),
+             sigma_p = c(1, 1, 1, 0.5, 0.5, 0.5, 1.5, 1.5, 1.5),
+             sigma_q = c(1, 1, 1, 0.5, 0.5, 0.5, 1.5, 1.5, 1.5))
+```
+
+DO NOT RUN THIS CHUNK!!!
+```{r, eval=FALSE}
+result_summary <- array(NA, dim = c(nrow(f_l), 10, 4)) 
+
+run_time <- system.time(for(i in 1:nrow(f_l)){
+    par <- paste("f = ", f_l[i,1], ", lambda = ", 10^f_l[i,2])
+    cat(par, "\n")
+    current_result <- cv.function.pmf(data, K = 5, f = f_l[i,1],sigma_p=f_l[i,2],sigma_q= f_l[i,3],sigma = 0.1)
+    result_summary[i,,] <- matrix(unlist(current_result), ncol = 4, byrow = T) 
+    print(result_summary)
+  
+})
+result_summary[,,1]
+save(result_summary, file = "../output/rmse_pmf.Rdata")
+```
+
+```{r}
+load("../output/rmse_pmf.Rdata")
+rmse <- data.frame(rbind(result_summary[,,1], result_summary[,,2]), train_test = rep(c("Train", "Test"), each = 9), par = rep(paste("f = ", f_l[,1], ", sigma_p = ", f_l[,2], ", sigma_q = ", f_l[,3]), times = 2)) %>% gather("epoch", "RMSE", -train_test, -par)
+rmse$epoch <- as.numeric(gsub("X", "", rmse$epoch))
+rmse %>% ggplot(aes(x = epoch, y = RMSE, col = train_test)) + geom_point() + facet_grid(~par)
+```
+
+#### Step 2.3 Evaluation on the Model without Postprocessing 
+```{r, eval= FALSE}
+result <- gradesc(f = 10, sigma_p = 0.5,sigma_q = 0.5,lrate = 0.01, max.iter = 100, stopping.deriv = 0.01, data = data, train = data_train, test = data_test)
+
+save(result, file = "../output/mat_fac_pmf.RData")
+```
+
+You should visualize training and testing RMSE by different epochs ([One Epoch is when an ENTIRE dataset is passed forward and backward through the neural network only ONCE](https://towardsdatascience.com/epoch-vs-iterations-vs-batch-size-4dfb9c7ce9c9)). 
+
+(Not yet by now)
+```{r}
+load(file = "../output/mat_fac.RData")
+library(ggplot2)
+
+RMSE <- data.frame(epochs = seq(10, 100, 10), Training_MSE = result$train_RMSE, Test_MSE = result$test_RMSE) %>% gather(key = train_or_test, value = RMSE, -epochs)
+
+RMSE %>% ggplot(aes(x = epochs, y = RMSE,col = train_or_test)) + geom_point() + scale_x_discrete(limits = seq(10, 100, 10)) + xlim(c(0, 100))
+
+```
+
+### Step 3 Postprocessing
+After matrix factorization, postporcessing will be performed to improve accuracy.
+The referenced papers are:
+
+P2:[Postprocessing SVD with KNN](./paper/P2 Improving regularized singular value decomposition for collaborative filtering .pdf) Section 3.5
+
+```{r}
+pred_rating <- t(result$q) %*% result$p
+#define a function to extract the corresponding predictedrating for the test set.
+extract_pred_rating <- function(test_set, pred){
+  pred_rating <- pred[as.character(test_set[2]), as.character(test_set[1])]
+  return(pred_rating)
+}
+#extract predicted rating
+pred_test_rating <- apply(data_test, 1, extract_pred_rating, pred_rating)
+
+#mean(P)
+pred_mean <- mean(pred_test_rating)
+#mean(test)
+mean_test_rating <- mean(data_test$rating)
+
+#mean(test) - mean(P)
+mean_diff <- mean_test_rating - pred_mean
+
+data_test$pred <- pred_test_rating
+data_test$pred_adj <- pred_test_rating + mean_diff
+
+boxplot(data_test$pred_adj ~ data_test$rating)
+#calculate RMSE
+rmse_adj <- sqrt(mean((data_test$rating - data_test$pred_adj)^2))
+cat("The RMSE of the adjusted model is", rmse_adj)
+```
+
+Depending on your postprocessing method, you might want to cross-validate on some parameters related to the postprocessing. Don't forget to visualize the cross-validation process through graphs.
