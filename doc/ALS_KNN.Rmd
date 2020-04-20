@@ -5,7 +5,7 @@ date: "4/20/2020"
 output: html_document
 ---
 
-### Step 3 Postprocessing for Probabilistic Gradien Descent  
+### Step 3 Postprocessing for Alternative Least Square  
 After matrix factorization, postporcessing will be performed to improve accuracy.  
 The referenced papers are:  
   
@@ -21,7 +21,7 @@ p <- result$p
 q <- result$q
 colnames(p) <- sort(unique(data$userId))
 colnames(q) <- sort(unique(data$movieId))
-set.seed(123)
+set.seed(0)
 test_idx <- sample(1:nrow(data), round(nrow(data)/5, 0))
 train_idx <- setdiff(1:nrow(data), test_idx)
 data_train <- data[train_idx,]
@@ -35,8 +35,8 @@ if(!require("lsa")){
 library(lsa)
 library(tidyverse)
 # cos_mat_q <- cosine(q)
-# save(cos_mat_q, file = "../output/cos_als.Rdata")
-load("../output/cos_als.Rdata")
+# save(cos_mat_q, file = "../output/cos_als.RData")
+load("../output/cos_als.RData")
 
 colnames(cos_mat_q) <- colnames(q)
 rownames(cos_mat_q) <- colnames(q)
@@ -99,10 +99,13 @@ test_knn <- as.data.frame(test_knn)
 # Calculate test RMSE for KNN
 pred_knn_test <- predict(knn_model, test_knn[,-3])
 
-# library(ggplot2)
+library(ggplot2)
 # ggplot(mapping = aes(x= as.factor(test_knn[,3]), y = pred_knn_test) )+ geom_boxplot(aes(color =as.factor(test_knn[,3]))) + theme_light() + labs(title = "ALS Predicted Rating with Postprocessing v.s. True Value", x = "True Value", y = "Predicted") + theme(legend.title = element_blank(), plot.title = element_text(hjust = 0.5))
-RMSE_adj <- sqrt(mean((test_knn[,3] - pred_knn_test)^2))
-cat("The test RMSE of the Probabilistic Gradient Descent with postprocessing is", RMSE_adj) # 0.6524044
+RMSE_adj_als <- sqrt(mean((test_knn[,3] - pred_knn_test)^2))
+# save(RMSE_adj_als, file = "../output/result_KNN_ALS.RData")
+load("../output/result_KNN_ALS.RData") # For consistency
+cat("The test RMSE of the Alternative Least Square with postprocessing is", RMSE_adj_als) # 0.6678076
+
 ```  
   
 ![](../figs/ALS_KNN.png)
