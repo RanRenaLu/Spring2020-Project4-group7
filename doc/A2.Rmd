@@ -69,7 +69,7 @@ rmse %>% ggplot(aes(x = epoch, y = RMSE, col = train_test)) + geom_point() + fac
 
 #### Step 2.3 Evaluation on the Model without Postprocessing 
 ```{r, eval= FALSE}
-result <- gradesc(f = 10, sigma_p = 0.5,sigma_q = 0.5,lrate = 0.01, max.iter = 100, stopping.deriv = 0.01, data = data, train = data_train, test = data_test)
+time <- system.time(result <- gradesc_pmf(f = 5, sigma_p = 0.5,sigma_q = 0.5,lrate = 0.01, max.iter = 100, stopping.deriv = 0.01, data = data, train = data_train, test = data_test))
 
 save(result, file = "../output/mat_fac_pmf.RData")
 ```
@@ -78,7 +78,7 @@ You should visualize training and testing RMSE by different epochs ([One Epoch i
 
 (Not yet by now)
 ```{r}
-load(file = "../output/mat_fac.RData")
+load(file = "../output/mat_fac_pmf.RData")
 library(ggplot2)
 
 RMSE <- data.frame(epochs = seq(10, 100, 10), Training_MSE = result$train_RMSE, Test_MSE = result$test_RMSE) %>% gather(key = train_or_test, value = RMSE, -epochs)
