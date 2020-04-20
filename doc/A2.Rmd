@@ -86,38 +86,9 @@ RMSE <- data.frame(epochs = seq(10, 100, 10), Training_MSE = result$train_RMSE, 
 RMSE %>% ggplot(aes(x = epochs, y = RMSE,col = train_or_test)) + geom_point() + scale_x_discrete(limits = seq(10, 100, 10)) + xlim(c(0, 100))
 
 ```
-
-### Step 3 Postprocessing
-After matrix factorization, postporcessing will be performed to improve accuracy.
-The referenced papers are:
-
-P2:[Postprocessing SVD with KNN](./paper/P2 Improving regularized singular value decomposition for collaborative filtering .pdf) Section 3.5
-
+  
 ```{r}
-pred_rating <- t(result$q) %*% result$p
-#define a function to extract the corresponding predictedrating for the test set.
-extract_pred_rating <- function(test_set, pred){
-  pred_rating <- pred[as.character(test_set[2]), as.character(test_set[1])]
-  return(pred_rating)
-}
-#extract predicted rating
-pred_test_rating <- apply(data_test, 1, extract_pred_rating, pred_rating)
 
-#mean(P)
-pred_mean <- mean(pred_test_rating)
-#mean(test)
-mean_test_rating <- mean(data_test$rating)
-
-#mean(test) - mean(P)
-mean_diff <- mean_test_rating - pred_mean
-
-data_test$pred <- pred_test_rating
-data_test$pred_adj <- pred_test_rating + mean_diff
-
-boxplot(data_test$pred_adj ~ data_test$rating)
-#calculate RMSE
-rmse_adj <- sqrt(mean((data_test$rating - data_test$pred_adj)^2))
-cat("The RMSE of the adjusted model is", rmse_adj)
-```
-
-Depending on your postprocessing method, you might want to cross-validate on some parameters related to the postprocessing. Don't forget to visualize the cross-validation process through graphs.
+cat("The traing RMSE of the Probabilistic Gradient Descent model without postprocessing is", RMSE[10,3], "\n")
+cat("The test RMSE of the Probabilistic Gradient Descent model without postprocessing is", RMSE[20,3], "\n")
+```  

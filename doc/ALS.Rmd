@@ -114,5 +114,8 @@ RMSE <- data.frame(epochs = seq(10, 100, 10), Training_MSE = result$train_RMSE, 
 RMSE %>% ggplot(aes(x = epochs, y = RMSE,col = train_or_test)) + geom_point() + scale_x_discrete(limits = seq(10, 100, 10)) + xlim(c(0, 100))
 ```
 
-
+```{r}
+cat("The traing RMSE of the Probabilistic Gradient Descent model without postprocessing is", RMSE[100,3], "\n")
+cat("The test RMSE of the Probabilistic Gradient Descent model without postprocessing is", RMSE[200,3], "\n")
+```  
 
