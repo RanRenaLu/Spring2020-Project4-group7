@@ -98,8 +98,9 @@ test_knn <- as.data.frame(test_knn)
 ```{r}
 # Calculate test RMSE for KNN
 pred_knn_test <- predict(knn_model, test_knn[,-3])
-library(ggplot2)
-ggplot(mapping = aes(x= as.factor(test_knn[,3]), y = pred_knn_test) )+ geom_boxplot(aes(color =as.factor(test_knn[,3]))) + theme_light() + labs(title = "PMF Predicted Rating with Postprocessing v.s. True Value", x = "True Value", y = "Predicted") + theme(legend.title = element_blank(), plot.title = element_text(hjust = 0.5))
+# library(ggplot2)
+# ggplot(mapping = aes(x= as.factor(test_knn[,3]), y = pred_knn_test) )+ geom_boxplot(aes(color =as.factor(test_knn[,3]))) + 
+# theme_light() + labs(title = "PMF Predicted Rating with Postprocessing v.s. True Value", x = "True Value", y = "Predicted") # + theme(legend.title = element_blank(), plot.title = element_text(hjust = 0.5))
 RMSE_adj <- sqrt(mean((test_knn[,3] - pred_knn_test)^2))
 cat("The test RMSE of the Probabilistic Gradient Descent with postprocessing is", RMSE_adj) #0.809694
 ```
