@@ -34,8 +34,8 @@ if(!require("lsa")){
 }
 library(lsa)
 library(tidyverse)
-cos_mat_q <- cosine(q)
-save(cos_mat_q, file = "../output/cos_als.Rdata")
+# cos_mat_q <- cosine(q)
+# save(cos_mat_q, file = "../output/cos_als.Rdata")
 load("../output/cos_als.Rdata")
 
 colnames(cos_mat_q) <- colnames(q)
