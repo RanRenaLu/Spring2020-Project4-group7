@@ -48,9 +48,9 @@ for (i in 1:ncol(cos_mat_q)) { # find the index of the nearest neighbor movie
 
 original_rating <- t(q) %*% p # The estimated rating before post processing
 
-mean_rating_knn <- data_train %>% group_by(movieId) %>% summarize(mean_rating_knn = mean(rating)) 
-mean_rating_knn$movieId <- as.character(mean_rating_knn$movieId)
-knn_rating <- cbind(mean_rating_knn$movieId,mean_rating_knn[index[which(colnames(cos_mat_q)%in%mean_rating_knn$movieId)],2])
+mean_rating_knn <- data %>% group_by(movieId) %>% summarize(mean_rating_knn = mean(rating)) 
+mean_rating_knn_movieId <- as.character(unique(data_train$movieId))
+knn_rating <- cbind(mean_rating_knn_movieId,mean_rating_knn[index[which(colnames(cos_mat_q)%in%mean_rating_knn_movieId)],2])
 # Get the average rating
 
 train_userID <- as.character(data_train$userId)
@@ -71,11 +71,9 @@ knn_model <- lm(y_knn ~ knn_predictor + predictor_before)
   
 ```{r}
 # Calculate the prediction for test set
-mean_rating_knn_test <- data_test %>% group_by(movieId) %>% summarize(mean_rating_knn_test = mean(rating)) 
-mean_rating_knn_test$movieId <- as.character(mean_rating_knn_test$movieId)
-knn_rating_test <- cbind(mean_rating_knn_test$movieId,mean_rating_knn_test[index[which(colnames(cos_mat_q)%in%mean_rating_knn_test$movieId)],2])
+mean_rating_knn_test_movieId <- as.character(unique(data_test$movieId))
+knn_rating_test <- cbind(mean_rating_knn_test_movieId,mean_rating_knn[index[which(colnames(cos_mat_q)%in%mean_rating_knn_test_movieId)],2])
 # Get the average rating
-
 
 test_userID <- as.character(data_test$userId)
 test_movieID <- as.character(data_test$movieId)
@@ -104,7 +102,7 @@ library(ggplot2)
 RMSE_adj_als <- sqrt(mean((test_knn[,3] - pred_knn_test)^2))
 # save(RMSE_adj_als, file = "../output/result_KNN_ALS.RData")
 load("../output/result_KNN_ALS.RData") # For consistency
-cat("The test RMSE of the Alternative Least Square with postprocessing is", RMSE_adj_als) # 0.6678076
+cat("The test RMSE of the Alternative Least Square with postprocessing is", RMSE_adj_als) 
 
 ```  
   

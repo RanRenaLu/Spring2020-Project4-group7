@@ -48,9 +48,9 @@ for (i in 1:ncol(cos_mat_q)) { # find the index of the nearest neighbor movie
 
 original_rating <- t(q) %*% p # The estimated rating before post processing
 
-mean_rating_knn <- data_train %>% group_by(movieId) %>% summarize(mean_rating_knn = mean(rating)) 
-mean_rating_knn$movieId <- as.character(mean_rating_knn$movieId)
-knn_rating <- cbind(mean_rating_knn$movieId,mean_rating_knn[index[which(colnames(cos_mat_q)%in%mean_rating_knn$movieId)],2])
+mean_rating_knn <- data %>% group_by(movieId) %>% summarize(mean_rating_knn = mean(rating)) 
+mean_rating_knn_movieId <- as.character(unique(data_train$movieId))
+knn_rating <- cbind(mean_rating_knn_movieId,mean_rating_knn[index[which(colnames(cos_mat_q)%in%mean_rating_knn_movieId)],2])
 # Get the average rating
 
 train_userID <- as.character(data_train$userId)
@@ -71,11 +71,9 @@ knn_model <- lm(y_knn ~ knn_predictor + predictor_before)
   
 ```{r}
 # Calculate the prediction for test set
-mean_rating_knn_test <- data_test %>% group_by(movieId) %>% summarize(mean_rating_knn_test = mean(rating)) 
-mean_rating_knn_test$movieId <- as.character(mean_rating_knn_test$movieId)
-knn_rating_test <- cbind(mean_rating_knn_test$movieId,mean_rating_knn_test[index[which(colnames(cos_mat_q)%in%mean_rating_knn_test$movieId)],2])
+mean_rating_knn_test_movieId <- as.character(unique(data_test$movieId))
+knn_rating_test <- cbind(mean_rating_knn_test_movieId,mean_rating_knn[index[which(colnames(cos_mat_q)%in%mean_rating_knn_test_movieId)],2])
 # Get the average rating
-
 
 test_userID <- as.character(data_test$userId)
 test_movieID <- as.character(data_test$movieId)
@@ -98,7 +96,7 @@ test_knn <- as.data.frame(test_knn)
 ```{r}
 # Calculate test RMSE for KNN
 pred_knn_test <- predict(knn_model, test_knn[,-3])
-library(ggplot2)
+# library(ggplot2)
 # ggplot(mapping = aes(x= as.factor(test_knn[,3]), y = pred_knn_test) )+ geom_boxplot(aes(color =as.factor(test_knn[,3]))) +
 # theme_light() + labs(title = "PMF Predicted Rating with Postprocessing v.s. True Value", x = "True Value", y = "Predicted")+ theme(legend.title = element_blank(), plot.title = element_text(hjust = 0.5))
 RMSE_adj_pmf <- sqrt(mean((test_knn[,3] - pred_knn_test)^2))
