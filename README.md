@@ -12,11 +12,11 @@ Term: Spring 2020
 	+ Wang, Rui
 	+ Zhang, Qin 
 	+ Zhang, Tianya
-+ Project summary: In this project, we implemented algorithm A2 (Gradient Descent with Probabilistic Assumption), A3 (Alternativa Least Square) and postprocessed with P2 (KNN), and applied cross validation to tune the parameters in A2 and A3. Finally, by combining A2 + P2 and A3 + P2, we further improved the performance on test dataset in terms of the RMSE (Root Mean Square Error).
++ Project summary: In this project, we implemented algorithm A2 (Gradient Descent with Probabilistic Assumption), A3 (Alternating Least Square) and postprocessed with P2 (KNN), and applied cross validation to tune the parameters in A2 and A3. Finally, by combining A2 + P2 and A3 + P2, we further improved the performance on test dataset in terms of the RMSE (Root Mean Square Error).
 	
 **Contribution statement**: All team members contributed equally in all stages of this project. All team members approve our work presented in this GitHub repository including this contributions statement. 
 
-	+ Zhang, Qin and Shang, Haoyu: Implemented the algorithm for A3 (Alternative Least Square).  
+	+ Zhang, Qin and Shang, Haoyu: Implemented the algorithm for A3 (Alternating Least Square).  
 	+ Wang, Rui: Implemented the algorithm for A2 (Gradient Descent with Probabilistic Assumptions).  
 	+ Lu, Ran: Implemented post-processing (KNN) for A2 and A3, finished the PowerPoint and gave the presentation.  
 	+ Zhang, Tianya: Wrote the final report.  
