@@ -5,7 +5,7 @@ date: "4/20/2020"
 output: html_document
 ---
 
-### Step 3 Postprocessing for Alternative Least Square  
+### Step 3 Postprocessing for Alternating Least Square  
 After matrix factorization, postporcessing will be performed to improve accuracy.  
 The referenced papers are:  
   
@@ -102,7 +102,7 @@ library(ggplot2)
 RMSE_adj_als <- sqrt(mean((test_knn[,3] - pred_knn_test)^2))
 # save(RMSE_adj_als, file = "../output/result_KNN_ALS.RData")
 load("../output/result_KNN_ALS.RData") # For consistency
-cat("The test RMSE of the Alternative Least Square with postprocessing is", RMSE_adj_als) 
+cat("The test RMSE of the Alternating Least Square with postprocessing is", RMSE_adj_als) 
 
 ```  
   
